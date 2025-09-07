@@ -13,7 +13,7 @@ from datetime import datetime
 from flask import Flask, render_template, jsonify, request, send_file
 from flask_socketio import SocketIO, emit
 import webbrowser
-from mock_screenshot_system import MockScreenshotSystem
+from real_screenshot_system import RealScreenshotSystem
 
 class AITestingDashboard:
     def __init__(self):
@@ -21,8 +21,8 @@ class AITestingDashboard:
         self.app.config['SECRET_KEY'] = 'project_watch_tower_ai_dashboard'
         self.socketio = SocketIO(self.app, cors_allowed_origins="*")
         
-        # Initialize mock screenshot system
-        self.mock_screenshot_system = MockScreenshotSystem()
+        # Initialize real screenshot system
+        self.real_screenshot_system = RealScreenshotSystem()
         
         # Dashboard data
         self.dashboard_data = {
@@ -222,12 +222,12 @@ class AITestingDashboard:
         def take_manual_screenshot():
             """Take a manual screenshot and analyze it"""
             try:
-                # Take screenshot using mock system
-                screenshot_result = self.mock_screenshot_system.take_screenshot()
+                # Take screenshot using real system
+                screenshot_result = self.real_screenshot_system.take_screenshot()
                 
                 if screenshot_result['success']:
                     # Analyze the screenshot
-                    analysis_result = self.mock_screenshot_system.analyze_screenshot(
+                    analysis_result = self.real_screenshot_system.analyze_screenshot(
                         screenshot_result['filepath']
                     )
                     
@@ -268,7 +268,7 @@ class AITestingDashboard:
             """Get list of manual screenshots"""
             try:
                 screenshots = []
-                screenshots_dir = self.mock_screenshot_system.screenshots_dir
+                screenshots_dir = self.real_screenshot_system.screenshots_dir
                 
                 if os.path.exists(screenshots_dir):
                     for filename in os.listdir(screenshots_dir):

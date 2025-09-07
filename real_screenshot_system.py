@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
 """
-Manual Screenshot System for Project Watch Tower
-Real AI Analysis with Model Selection
+Real Screenshot System for Project Watch Tower
+Works with Xcode-built iOS apps - NO MOCK DATA
 """
 
 import os
 import subprocess
 import json
-import base64
 from datetime import datetime
 import cv2
 import numpy as np
+import time
 
-class ManualScreenshotSystem:
+class RealScreenshotSystem:
     def __init__(self):
-        self.screenshots_dir = "manual_screenshots"
-        self.analysis_dir = "ai_analysis"
+        self.screenshots_dir = "real_screenshots"
+        self.analysis_dir = "real_analysis"
         self.ensure_directories()
         
     def ensure_directories(self):
@@ -24,42 +24,24 @@ class ManualScreenshotSystem:
         os.makedirs(self.analysis_dir, exist_ok=True)
         
     def take_screenshot(self):
-        """Take a real screenshot from iOS simulator"""
+        """Take a REAL screenshot from iOS simulator with Xcode-built app"""
         try:
-            # Get list of booted simulators
-            result = subprocess.run(['xcrun', 'simctl', 'list', 'devices', 'booted'], 
-                                 capture_output=True, text=True)
-            
-            if result.returncode != 0 or not result.stdout.strip():
-                return {"success": False, "error": "No booted iOS simulator found"}
-            
-            # Extract device ID from output
-            lines = result.stdout.strip().split('\n')
-            device_id = None
-            for line in lines:
-                if 'iPhone' in line and 'Booted' in line:
-                    # Extract device ID (format: "iPhone 16 Pro (12345678-1234-1234-1234-123456789012) (Booted)")
-                    parts = line.split('(')
-                    if len(parts) >= 2:
-                        device_id = parts[1].split(')')[0]
-                        break
-            
-            if not device_id:
-                return {"success": False, "error": "Could not extract device ID"}
+            # Check if simulator is running
+            booted_devices = self.get_booted_devices()
+            if not booted_devices:
+                return {"success": False, "error": "No iOS simulator is running. Please start Xcode and run your app."}
             
             # Generate filename with timestamp
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"manual_screenshot_{timestamp}.png"
+            filename = f"real_screenshot_{timestamp}.png"
             filepath = os.path.join(self.screenshots_dir, filename)
             
-            # Take screenshot using the correct command format
-            screenshot_cmd = ['xcrun', 'simctl', 'io', device_id, 'screenshot', filepath]
-            result = subprocess.run(screenshot_cmd, capture_output=True, text=True)
+            # Take screenshot using the first booted device
+            device_id = booted_devices[0]
+            success = self.capture_screenshot(device_id, filepath)
             
-            if result.returncode == 0 and os.path.exists(filepath):
-                # Get file size
+            if success and os.path.exists(filepath) and os.path.getsize(filepath) > 0:
                 file_size = os.path.getsize(filepath)
-                
                 return {
                     "success": True,
                     "filename": filename,
@@ -69,13 +51,60 @@ class ManualScreenshotSystem:
                     "device_id": device_id
                 }
             else:
-                return {"success": False, "error": f"Screenshot failed: {result.stderr}"}
+                return {"success": False, "error": "Failed to capture screenshot - app may not be running"}
                 
         except Exception as e:
             return {"success": False, "error": f"Exception: {str(e)}"}
     
-    def analyze_screenshot(self, image_path, model="claude"):
-        """Analyze screenshot with real AI analysis"""
+    def get_booted_devices(self):
+        """Get list of booted iOS simulators"""
+        try:
+            result = subprocess.run(['xcrun', 'simctl', 'list', 'devices', 'booted'], 
+                                  capture_output=True, text=True, timeout=10)
+            
+            if result.returncode != 0:
+                return []
+            
+            devices = []
+            lines = result.stdout.strip().split('\n')
+            for line in lines:
+                if 'iPhone' in line and 'Booted' in line:
+                    # Extract device ID
+                    parts = line.split('(')
+                    if len(parts) >= 2:
+                        device_id = parts[1].split(')')[0]
+                        devices.append(device_id)
+            
+            return devices
+        except:
+            return []
+    
+    def capture_screenshot(self, device_id, filepath):
+        """Capture screenshot from specific device"""
+        try:
+            # Try multiple screenshot methods
+            methods = [
+                ['xcrun', 'simctl', 'io', device_id, 'screenshot', filepath],
+                ['xcrun', 'simctl', 'io', 'booted', 'screenshot', filepath]
+            ]
+            
+            for method in methods:
+                try:
+                    result = subprocess.run(method, capture_output=True, text=True, timeout=15)
+                    if result.returncode == 0:
+                        # Wait a moment for file to be written
+                        time.sleep(1)
+                        if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
+                            return True
+                except:
+                    continue
+            
+            return False
+        except:
+            return False
+    
+    def analyze_screenshot(self, image_path):
+        """Analyze screenshot with REAL computer vision - NO MOCK DATA"""
         try:
             # Load image with OpenCV
             image = cv2.imread(image_path)
@@ -85,12 +114,12 @@ class ManualScreenshotSystem:
             # Get image dimensions
             height, width, channels = image.shape
             
-            # Real computer vision analysis
+            # REAL computer vision analysis
             analysis = self.perform_real_analysis(image)
             
             # Create analysis report
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            analysis_file = os.path.join(self.analysis_dir, f"analysis_{timestamp}.json")
+            analysis_file = os.path.join(self.analysis_dir, f"real_analysis_{timestamp}.json")
             
             report = {
                 "timestamp": timestamp,
@@ -101,9 +130,8 @@ class ManualScreenshotSystem:
                     "channels": channels,
                     "file_size": os.path.getsize(image_path)
                 },
-                "model_used": model,
                 "analysis": analysis,
-                "recommendations": self.generate_recommendations(analysis)
+                "recommendations": self.generate_real_recommendations(analysis)
             }
             
             # Save analysis
@@ -120,12 +148,11 @@ class ManualScreenshotSystem:
             return {"success": False, "error": f"Analysis failed: {str(e)}"}
     
     def perform_real_analysis(self, image):
-        """Perform real computer vision analysis"""
+        """Perform REAL computer vision analysis - NO FAKE DATA"""
         # Convert to different color spaces for analysis
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
         
-        # Real analysis metrics
+        # REAL analysis metrics
         analysis = {
             "brightness": float(np.mean(gray)),
             "contrast": float(np.std(gray)),
@@ -137,7 +164,8 @@ class ManualScreenshotSystem:
             "edge_density": self.calculate_edge_density(gray),
             "text_regions": self.detect_text_regions(gray),
             "button_regions": self.detect_button_regions(image),
-            "layout_analysis": self.analyze_layout(image)
+            "layout_analysis": self.analyze_layout(image),
+            "ui_issues": self.detect_ui_issues(image)
         }
         
         return analysis
@@ -150,7 +178,7 @@ class ManualScreenshotSystem:
         return float(edge_pixels / total_pixels)
     
     def detect_text_regions(self, gray_image):
-        """Detect potential text regions"""
+        """Detect potential text regions using real computer vision"""
         # Use morphological operations to detect text-like regions
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
         dilated = cv2.dilate(gray_image, kernel, iterations=1)
@@ -173,7 +201,7 @@ class ManualScreenshotSystem:
         return text_regions
     
     def detect_button_regions(self, image):
-        """Detect potential button regions"""
+        """Detect potential button regions using real computer vision"""
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         
         # Detect rectangular regions
@@ -195,7 +223,7 @@ class ManualScreenshotSystem:
         return button_regions
     
     def analyze_layout(self, image):
-        """Analyze overall layout structure"""
+        """Analyze overall layout structure using real computer vision"""
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         
         # Detect horizontal and vertical lines
@@ -211,100 +239,156 @@ class ManualScreenshotSystem:
             "layout_complexity": float(np.sum(horizontal_lines > 0) + np.sum(vertical_lines > 0))
         }
     
-    def generate_recommendations(self, analysis):
-        """Generate real recommendations based on analysis"""
+    def detect_ui_issues(self, image):
+        """Detect real UI issues using computer vision"""
+        issues = []
+        height, width = image.shape[:2]
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        
+        # Check for text overflow (elements extending beyond screen bounds)
+        # This is a simplified check - in reality, you'd need more sophisticated detection
+        edge_pixels = np.sum(gray < 10)  # Very dark pixels
+        total_pixels = gray.shape[0] * gray.shape[1]
+        
+        if edge_pixels / total_pixels > 0.8:
+            issues.append({
+                "type": "contrast",
+                "severity": "high",
+                "description": "Screen appears to be mostly black - app may not be running"
+            })
+        
+        # Check for very bright screens (potential loading screens)
+        bright_pixels = np.sum(gray > 240)
+        if bright_pixels / total_pixels > 0.7:
+            issues.append({
+                "type": "brightness",
+                "severity": "medium",
+                "description": "Screen is very bright - may be a loading screen"
+            })
+        
+        return issues
+    
+    def generate_real_recommendations(self, analysis):
+        """Generate REAL recommendations based on actual analysis - NO FAKE DATA"""
         recommendations = []
         
-        # Brightness recommendations
-        if analysis["brightness"] < 50:
+        # Brightness recommendations based on REAL data
+        brightness = analysis["brightness"]
+        if brightness < 30:
             recommendations.append({
                 "type": "brightness",
                 "severity": "high",
-                "message": "Screen is very dark, consider increasing brightness",
-                "value": analysis["brightness"]
+                "message": f"Screen is very dark (brightness: {brightness:.1f}) - app may not be running properly",
+                "value": brightness
             })
-        elif analysis["brightness"] > 200:
+        elif brightness > 220:
             recommendations.append({
                 "type": "brightness",
                 "severity": "medium",
-                "message": "Screen is very bright, consider reducing brightness",
-                "value": analysis["brightness"]
+                "message": f"Screen is very bright (brightness: {brightness:.1f}) - may be a loading screen",
+                "value": brightness
             })
         
-        # Contrast recommendations
-        if analysis["contrast"] < 30:
+        # Contrast recommendations based on REAL data
+        contrast = analysis["contrast"]
+        if contrast < 20:
             recommendations.append({
                 "type": "contrast",
                 "severity": "high",
-                "message": "Low contrast detected, text may be hard to read",
-                "value": analysis["contrast"]
+                "message": f"Very low contrast detected ({contrast:.1f}) - text may be unreadable",
+                "value": contrast
             })
         
-        # Text region recommendations
-        if len(analysis["text_regions"]) == 0:
+        # Text region recommendations based on REAL data
+        text_regions = len(analysis["text_regions"])
+        if text_regions == 0:
             recommendations.append({
                 "type": "text",
                 "severity": "medium",
-                "message": "No text regions detected, check if text is visible",
-                "value": 0
+                "message": "No text regions detected - app may not be displaying content",
+                "value": text_regions
             })
-        elif len(analysis["text_regions"]) > 20:
+        elif text_regions > 50:
             recommendations.append({
                 "type": "text",
                 "severity": "low",
-                "message": "Many text regions detected, check for text overflow",
-                "value": len(analysis["text_regions"])
+                "message": f"Many text regions detected ({text_regions}) - check for text overflow",
+                "value": text_regions
             })
         
-        # Button region recommendations
-        if len(analysis["button_regions"]) == 0:
+        # Button region recommendations based on REAL data
+        button_regions = len(analysis["button_regions"])
+        if button_regions == 0:
             recommendations.append({
                 "type": "buttons",
                 "severity": "medium",
-                "message": "No button regions detected, check if buttons are visible",
-                "value": 0
+                "message": "No button regions detected - check if interactive elements are visible",
+                "value": button_regions
+            })
+        
+        # Add UI issues as recommendations
+        for issue in analysis.get("ui_issues", []):
+            recommendations.append({
+                "type": issue["type"],
+                "severity": issue["severity"],
+                "message": issue["description"],
+                "value": 1
             })
         
         return recommendations
 
 def main():
-    """Test the manual screenshot system"""
-    system = ManualScreenshotSystem()
+    """Test the real screenshot system"""
+    system = RealScreenshotSystem()
     
-    print("📸 Manual Screenshot System Test")
+    print("📸 Real Screenshot System Test")
+    print("=" * 50)
+    print("⚠️  Make sure you have:")
+    print("   1. Xcode running")
+    print("   2. iOS Simulator open")
+    print("   3. Your Flutter app built and running in the simulator")
     print("=" * 50)
     
     # Take screenshot
-    print("Taking screenshot...")
+    print("Taking REAL screenshot...")
     result = system.take_screenshot()
     
     if result["success"]:
-        print(f"✅ Screenshot saved: {result['filename']}")
+        print(f"✅ Real screenshot captured: {result['filename']}")
         print(f"   File size: {result['file_size']} bytes")
         print(f"   Device ID: {result['device_id']}")
         
         # Analyze screenshot
-        print("\n🔍 Analyzing screenshot...")
+        print("\n🔍 Analyzing screenshot with REAL computer vision...")
         analysis_result = system.analyze_screenshot(result['filepath'])
         
         if analysis_result["success"]:
-            print("✅ Analysis completed")
+            print("✅ Real analysis completed")
             report = analysis_result["report"]
             print(f"   Brightness: {report['analysis']['brightness']:.1f}")
             print(f"   Contrast: {report['analysis']['contrast']:.1f}")
             print(f"   Text regions: {len(report['analysis']['text_regions'])}")
             print(f"   Button regions: {len(report['analysis']['button_regions'])}")
+            print(f"   UI issues: {len(report['analysis']['ui_issues'])}")
             print(f"   Recommendations: {len(report['recommendations'])}")
             
             # Show recommendations
             if report['recommendations']:
-                print("\n📋 Recommendations:")
+                print("\n📋 Real Recommendations:")
                 for rec in report['recommendations']:
                     print(f"   - {rec['type'].upper()}: {rec['message']}")
+            else:
+                print("\n✅ No issues detected - app appears to be running normally")
         else:
             print(f"❌ Analysis failed: {analysis_result['error']}")
     else:
         print(f"❌ Screenshot failed: {result['error']}")
+        print("\n💡 To fix this:")
+        print("   1. Open Xcode")
+        print("   2. Open your Flutter project")
+        print("   3. Select iPhone 16 Pro simulator")
+        print("   4. Build and run your app")
+        print("   5. Try the screenshot again")
 
 if __name__ == "__main__":
     main()

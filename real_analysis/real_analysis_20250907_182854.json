@@ -1,0 +1,133 @@
+{
+  "timestamp": "20250907_182854",
+  "image_path": "real_screenshots/real_screenshot_20250907_182852.png",
+  "image_info": {
+    "width": 1206,
+    "height": 2622,
+    "channels": 3,
+    "file_size": 3278859
+  },
+  "analysis": {
+    "brightness": 79.9327109051741,
+    "contrast": 44.463342756865934,
+    "color_distribution": {
+      "red": 78.26989480515044,
+      "green": 79.94107108748149,
+      "blue": 84.3440343413874
+    },
+    "edge_density": 0.0073652839286911485,
+    "text_regions": [],
+    "button_regions": [
+      {
+        "x": 671,
+        "y": 2365,
+        "width": 133,
+        "height": 118,
+        "area": 11499.5,
+        "aspect_ratio": 1.1271186440677967
+      },
+      {
+        "x": 391,
+        "y": 2345,
+        "width": 158,
+        "height": 158,
+        "area": 19240.0,
+        "aspect_ratio": 1.0
+      },
+      {
+        "x": 376,
+        "y": 563,
+        "width": 182,
+        "height": 182,
+        "area": 30928.0,
+        "aspect_ratio": 1.0
+      },
+      {
+        "x": 104,
+        "y": 563,
+        "width": 182,
+        "height": 182,
+        "area": 30876.0,
+        "aspect_ratio": 1.0
+      },
+      {
+        "x": 920,
+        "y": 269,
+        "width": 182,
+        "height": 182,
+        "area": 30933.0,
+        "aspect_ratio": 1.0
+      },
+      {
+        "x": 648,
+        "y": 269,
+        "width": 182,
+        "height": 182,
+        "area": 27648.0,
+        "aspect_ratio": 1.0
+      },
+      {
+        "x": 376,
+        "y": 269,
+        "width": 182,
+        "height": 182,
+        "area": 30927.0,
+        "aspect_ratio": 1.0
+      },
+      {
+        "x": 104,
+        "y": 269,
+        "width": 182,
+        "height": 182,
+        "area": 30914.0,
+        "aspect_ratio": 1.0
+      },
+      {
+        "x": 248,
+        "y": 79,
+        "width": 29,
+        "height": 38,
+        "area": 833.5,
+        "aspect_ratio": 0.7631578947368421
+      },
+      {
+        "x": 169,
+        "y": 79,
+        "width": 28,
+        "height": 38,
+        "area": 723.0,
+        "aspect_ratio": 0.7368421052631579
+      },
+      {
+        "x": 1017,
+        "y": 77,
+        "width": 77,
+        "height": 41,
+        "area": 2756.0,
+        "aspect_ratio": 1.8780487804878048
+      },
+      {
+        "x": 414,
+        "y": 41,
+        "width": 378,
+        "height": 112,
+        "area": 39061.0,
+        "aspect_ratio": 3.375
+      }
+    ],
+    "layout_analysis": {
+      "horizontal_lines": 3123600,
+      "vertical_lines": 3123600,
+      "layout_complexity": 6247200.0
+    },
+    "ui_issues": []
+  },
+  "recommendations": [
+    {
+      "type": "text",
+      "severity": "medium",
+      "message": "No text regions detected - app may not be displaying content",
+      "value": 0
+    }
+  ]
+}
