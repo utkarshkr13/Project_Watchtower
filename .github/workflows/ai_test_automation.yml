@@ -37,7 +37,7 @@ on:
         type: string
 
 env:
-  FLUTTER_VERSION: '3.24.0'
+  FLUTTER_VERSION: '3.27.0'
   JAVA_VERSION: '17'
   XCODE_VERSION: '15.0'
 
@@ -208,7 +208,7 @@ jobs:
           fi
 
       - name: 📤 Upload AI Test Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: ai-test-results
@@ -253,7 +253,7 @@ jobs:
           EOF
 
       - name: 📤 Upload Test Summary
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-summary
           path: test_summary.md
