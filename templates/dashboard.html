@@ -680,6 +680,9 @@
                 <button class="btn btn-start" onclick="refreshScreenshots()">
                     🔄 Refresh Gallery
                 </button>
+                <button class="btn btn-stop" onclick="deleteAllScreenshots()">
+                    🗑️ Delete All Screenshots
+                </button>
                 <span class="gallery-info" id="gallery-info">Loading screenshots...</span>
             </div>
             <div class="screenshots-grid" id="screenshots-grid">
@@ -1073,6 +1076,32 @@
                 .catch(error => {
                     console.error('Error deleting screenshot:', error);
                     alert('Error deleting screenshot');
+                });
+            }
+        }
+
+        function deleteAllScreenshots() {
+            if (confirm('Are you sure you want to delete ALL screenshots? This action cannot be undone.')) {
+                fetch('/api/delete_all_screenshots', {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert(data.message);
+                        addActivity({
+                            timestamp: new Date().toLocaleTimeString(),
+                            message: `🗑️ ${data.message}`,
+                            type: 'warning'
+                        });
+                        refreshScreenshots(); // Refresh the gallery
+                    } else {
+                        alert('Error deleting screenshots: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting screenshots:', error);
+                    alert('Error deleting screenshots');
                 });
             }
         }
