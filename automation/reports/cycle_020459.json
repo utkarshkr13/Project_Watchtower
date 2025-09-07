@@ -1,0 +1,69 @@
+{
+  "cycle_start": "2025-09-04T02:02:18.345750",
+  "cycle_end": "2025-09-04T02:04:59.895127",
+  "duration_seconds": 161.549377,
+  "health_report": {
+    "timestamp": "2025-09-04T02:04:20.808654",
+    "checks": {
+      "build": {
+        "status": "fail",
+        "details": "Error (Xcode): lib/screens/auth/login_screen.dart:93:45: Error: The getter 'brightness' isn't defined for the class '_LoginScreenState'.\n\nEncountered error while building for simulator.\n"
+      },
+      "code_quality": {
+        "status": "fail",
+        "details": "277 issues found. (ran in 2.7s)\n"
+      },
+      "dependencies": {
+        "status": "pass",
+        "details": "Dependencies resolved"
+      },
+      "file_structure": {
+        "status": "pass",
+        "missing_files": []
+      },
+      "ui_consistency": {
+        "status": "warn",
+        "issues": [
+          "Hardcoded colors found - should use AppTheme",
+          "Hardcoded spacing found - should use AppTheme spacing",
+          "Many interactive widgets missing semantic labels"
+        ]
+      },
+      "branding": {
+        "status": "pass",
+        "issues": []
+      },
+      "performance": {
+        "status": "warn",
+        "issues": [
+          "Many widgets without const constructors (117 found)",
+          "Large image files found - may impact performance"
+        ]
+      }
+    },
+    "overall_health": "critical",
+    "critical_issues": [
+      "Build failed: Error (Xcode): lib/screens/auth/login_screen.dart:93:45: Error: The getter 'brightness' isn't defined for the class '_LoginScreenState'.\n\nEncountered error while building for simulator.\n"
+    ],
+    "minor_issues": [
+      "Analysis issues: 277 issues found. (ran in 2.7s)\n",
+      "Hardcoded colors found - should use AppTheme",
+      "Hardcoded spacing found - should use AppTheme spacing",
+      "Many interactive widgets missing semantic labels",
+      "Many widgets without const constructors (117 found)",
+      "Large image files found - may impact performance"
+    ],
+    "recommendations": [
+      "Fix build errors immediately - this prevents app from running",
+      "Replace hardcoded colors with AppTheme references",
+      "Add semantic labels for better accessibility",
+      "Apply performance optimizations"
+    ]
+  },
+  "fixes_applied": [
+    "Updated hardcoded colors to use AppTheme",
+    "Added const constructors for performance",
+    "Standardized spacing using AppTheme"
+  ],
+  "success": false
+}

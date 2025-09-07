@@ -1,0 +1,30 @@
+{
+  "dart.analysisExcludedFolders": [
+    ".pub-cache",
+    "ios/Pods",
+    "android/.gradle",
+    "build",
+    ".dart_tool"
+  ],
+  "dart.showDependencyPackageIssues": false,
+  "dart.showPackageIssues": false,
+  "dart.analysisServerFolding": false,
+  "dart.showTodos": false,
+  "dart.showIgnoreQuickFixes": false,
+  "problems.decorations.enabled": false,
+  "problems.showCurrentInStatus": false,
+  "dart.analyzerDiagnosticsPort": null,
+  "dart.enableSdkFormatter": true,
+  "dart.lineLength": 120,
+  "dart.insertArgumentPlaceholders": false,
+  "dart.previewFlutterUiGuides": false,
+  "dart.previewFlutterUiGuidesCustomTracking": false,
+  "files.watcherExclude": {
+    "**/.pub-cache/**": true,
+    "**/ios/Pods/**": true,
+    "**/android/.gradle/**": true,
+    "**/build/**": true,
+    "**/.dart_tool/**": true
+  }
+}
+

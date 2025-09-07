@@ -1,0 +1,55 @@
+{
+  "timestamp": "2025-09-04T01:50:58.445927",
+  "checks": {
+    "build": {
+      "status": "pass",
+      "details": "Build successful"
+    },
+    "code_quality": {
+      "status": "fail",
+      "details": "274 issues found. (ran in 5.5s)\n"
+    },
+    "dependencies": {
+      "status": "pass",
+      "details": "Dependencies resolved"
+    },
+    "file_structure": {
+      "status": "pass",
+      "missing_files": []
+    },
+    "ui_consistency": {
+      "status": "warn",
+      "issues": [
+        "Hardcoded colors found - should use AppTheme",
+        "Hardcoded spacing found - should use AppTheme spacing",
+        "Many interactive widgets missing semantic labels"
+      ]
+    },
+    "branding": {
+      "status": "pass",
+      "issues": []
+    },
+    "performance": {
+      "status": "warn",
+      "issues": [
+        "Many widgets without const constructors (117 found)",
+        "Large image files found - may impact performance"
+      ]
+    }
+  },
+  "overall_health": "needs_improvement",
+  "critical_issues": [],
+  "minor_issues": [
+    "Analysis issues: 274 issues found. (ran in 5.5s)\n",
+    "Hardcoded colors found - should use AppTheme",
+    "Hardcoded spacing found - should use AppTheme spacing",
+    "Many interactive widgets missing semantic labels",
+    "Many widgets without const constructors (117 found)",
+    "Large image files found - may impact performance"
+  ],
+  "recommendations": [
+    "Replace hardcoded colors with AppTheme references",
+    "Add semantic labels for better accessibility",
+    "Apply performance optimizations"
+  ]
+}

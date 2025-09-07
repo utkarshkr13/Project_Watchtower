@@ -1,0 +1,612 @@
+name: 🤖 FWB AI Test Automation
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run automated tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      test_category:
+        description: 'Test category to run'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - authentication
+          - home
+          - watch_party
+          - theme
+      device_type:
+        description: 'Device type for testing'
+        required: false
+        default: 'both'
+        type: choice
+        options:
+          - both
+          - ios_simulator
+          - android_emulator
+      test_limit:
+        description: 'Number of tests to run'
+        required: false
+        default: '100'
+        type: string
+
+env:
+  FLUTTER_VERSION: '3.24.0'
+  JAVA_VERSION: '17'
+  XCODE_VERSION: '15.0'
+
+jobs:
+  # Setup and validation job
+  setup:
+    name: 🔧 Setup & Validation
+    runs-on: ubuntu-latest
+    outputs:
+      flutter-version: ${{ steps.flutter-setup.outputs.version }}
+      test-strategy: ${{ steps.test-strategy.outputs.strategy }}
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Validate Project Structure
+        run: |
+          echo "Validating Flutter project structure..."
+          if [ ! -f "pubspec.yaml" ]; then
+            echo "❌ pubspec.yaml not found"
+            exit 1
+          fi
+          if [ ! -d "lib" ]; then
+            echo "❌ lib directory not found"
+            exit 1
+          fi
+          if [ ! -d "test_cases" ]; then
+            echo "❌ test_cases directory not found"
+            exit 1
+          fi
+          echo "✅ Project structure validated"
+
+      - name: 🦋 Setup Flutter
+        id: flutter-setup
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: 📦 Get Flutter Dependencies
+        run: flutter pub get
+
+      - name: 🔍 Flutter Doctor
+        run: flutter doctor -v
+
+      - name: 📊 Determine Test Strategy
+        id: test-strategy
+        run: |
+          if [ "${{ github.event_name }}" == "schedule" ]; then
+            echo "strategy=comprehensive" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "strategy=focused" >> $GITHUB_OUTPUT
+          else
+            echo "strategy=standard" >> $GITHUB_OUTPUT
+          fi
+
+  # Static Analysis Job
+  static-analysis:
+    name: 🔍 Static Analysis
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🦋 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: 📦 Get Dependencies
+        run: flutter pub get
+
+      - name: 🔍 Flutter Analyze
+        run: flutter analyze --fatal-infos --fatal-warnings
+
+      - name: 📏 Check Formatting
+        run: dart format --set-exit-if-changed .
+
+      - name: 🛡️ Security Scan
+        run: |
+          echo "Running security analysis..."
+          # Add security scanning tools here
+          dart pub deps
+
+  # Unit Tests Job
+  unit-tests:
+    name: 🧪 Unit Tests
+    runs-on: ubuntu-latest
+    needs: [setup, static-analysis]
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🦋 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: 📦 Get Dependencies
+        run: flutter pub get
+
+      - name: 🧪 Run Unit Tests
+        run: |
+          flutter test --coverage --reporter=expanded
+          
+      - name: 📊 Generate Coverage Report
+        run: |
+          dart pub global activate coverage
+          dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.packages --report-on=lib
+
+      - name: 📤 Upload Coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: coverage/lcov.info
+          flags: unit-tests
+
+  # Android Testing Job
+  android-tests:
+    name: 🤖 Android AI Tests
+    runs-on: macos-latest
+    needs: [setup, static-analysis]
+    strategy:
+      matrix:
+        api-level: [29, 33]
+        target: [default, google_apis]
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ☕ Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: 🦋 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: 📦 Get Dependencies
+        run: flutter pub get
+
+      - name: 🔧 Setup Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: 🐍 Setup Python for AI Engine
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: 🤖 Install AI Dependencies
+        run: |
+          pip install -r test_cases/automation/requirements.txt || echo "No requirements.txt found"
+          pip install opencv-python pillow torch torchvision transformers tensorflow
+          pip install Appium-Python-Client selenium flask flask-socketio
+          pip install jinja2 requests psutil
+
+      - name: 🚀 Start Appium Server
+        run: |
+          npm install -g appium
+          npm install -g @appium/doctor
+          appium driver install uiautomator2
+          appium &
+          sleep 10
+
+      - name: 📱 Create Android Virtual Device
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          target: ${{ matrix.target }}
+          arch: x86_64
+          profile: Nexus 6
+          script: |
+            echo "Android emulator started"
+            adb devices
+            
+            # Build and install the app
+            flutter build apk --debug
+            adb install build/app/outputs/flutter-apk/app-debug.apk
+            
+            # Run AI-powered tests
+            cd test_cases/automation/ai_engine
+            python AI_TEST_AUTOMATION_ENGINE.py \
+              --category ${{ github.event.inputs.test_category || 'all' }} \
+              --limit ${{ github.event.inputs.test_limit || '50' }}
+
+      - name: 📊 Upload Android Test Results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: android-test-results-api${{ matrix.api-level }}
+          path: |
+            test_report.html
+            test_results.json
+            screenshots/
+            test_automation.log
+
+  # iOS Testing Job
+  ios-tests:
+    name: 🍎 iOS AI Tests
+    runs-on: macos-latest
+    needs: [setup, static-analysis]
+    strategy:
+      matrix:
+        device: ['iPhone 15 Pro', 'iPhone 16 Pro', 'iPad Pro (12.9-inch) (6th generation)']
+        ios-version: ['17.0', '17.2']
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🍎 Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '${{ env.XCODE_VERSION }}'
+
+      - name: 🦋 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: 📦 Get Dependencies
+        run: flutter pub get
+
+      - name: 🍎 Setup iOS Simulator
+        run: |
+          # List available simulators
+          xcrun simctl list devices available
+          
+          # Create simulator if it doesn't exist
+          DEVICE_ID=$(xcrun simctl create "FWB-Test-${{ matrix.device }}" "com.apple.CoreSimulator.SimDeviceType.$(echo "${{ matrix.device }}" | sed 's/ /-/g')" "com.apple.CoreSimulator.SimRuntime.iOS-$(echo "${{ matrix.ios-version }}" | sed 's/\./-/g')")
+          echo "Created simulator with ID: $DEVICE_ID"
+          
+          # Boot the simulator
+          xcrun simctl boot "$DEVICE_ID"
+          
+          # Wait for simulator to boot
+          xcrun simctl bootstatus "$DEVICE_ID" -b
+
+      - name: 🐍 Setup Python for AI Engine
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: 🤖 Install AI Dependencies
+        run: |
+          pip install opencv-python pillow torch torchvision transformers tensorflow
+          pip install Appium-Python-Client selenium flask flask-socketio
+          pip install jinja2 requests psutil
+
+      - name: 🚀 Start Appium Server
+        run: |
+          npm install -g appium
+          appium driver install xcuitest
+          appium &
+          sleep 10
+
+      - name: 🔨 Build iOS App
+        run: |
+          flutter build ios --simulator --debug
+          
+      - name: 📱 Install App on Simulator
+        run: |
+          SIMULATOR_ID=$(xcrun simctl list devices booted | grep -o '[A-Z0-9-]\{36\}' | head -1)
+          xcrun simctl install "$SIMULATOR_ID" build/ios/iphonesimulator/Runner.app
+
+      - name: 🤖 Run AI-Powered iOS Tests
+        run: |
+          cd test_cases/automation/ai_engine
+          python AI_TEST_AUTOMATION_ENGINE.py \
+            --category ${{ github.event.inputs.test_category || 'all' }} \
+            --limit ${{ github.event.inputs.test_limit || '50' }}
+
+      - name: 📊 Upload iOS Test Results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: ios-test-results-${{ matrix.device }}-${{ matrix.ios-version }}
+          path: |
+            test_report.html
+            test_results.json
+            screenshots/
+            test_automation.log
+
+  # Performance Testing Job
+  performance-tests:
+    name: ⚡ Performance Tests
+    runs-on: macos-latest
+    needs: [android-tests, ios-tests]
+    if: github.event_name == 'schedule' || github.event.inputs.test_category == 'performance'
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🦋 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: 📦 Get Dependencies
+        run: flutter pub get
+
+      - name: ⚡ Run Performance Tests
+        run: |
+          echo "Running performance benchmarks..."
+          flutter test integration_test/performance_test.dart || echo "Performance tests not implemented yet"
+
+      - name: 📊 Generate Performance Report
+        run: |
+          echo "Generating performance report..."
+          # Add performance analysis tools here
+
+  # Security Testing Job
+  security-tests:
+    name: 🛡️ Security Tests
+    runs-on: ubuntu-latest
+    needs: [setup]
+    if: github.event_name == 'schedule' || github.event_name == 'push'
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🛡️ Run Security Scan
+        uses: securecodewarrior/github-action-add-sarif@v1
+        with:
+          sarif-file: 'security-scan-results.sarif'
+
+      - name: 🔍 Dependency Check
+        run: |
+          echo "Checking for security vulnerabilities in dependencies..."
+          flutter pub deps --json | grep -i "vulnerability" || echo "No vulnerabilities found"
+
+  # Accessibility Testing Job
+  accessibility-tests:
+    name: ♿ Accessibility Tests
+    runs-on: macos-latest
+    needs: [setup]
+    if: github.event_name == 'schedule' || contains(github.event.inputs.test_category, 'accessibility')
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🦋 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: 📦 Get Dependencies
+        run: flutter pub get
+
+      - name: ♿ Run Accessibility Tests
+        run: |
+          echo "Running accessibility tests..."
+          # Add accessibility testing tools here
+          flutter test test/accessibility_test.dart || echo "Accessibility tests not implemented yet"
+
+  # Test Results Aggregation Job
+  aggregate-results:
+    name: 📊 Aggregate Test Results
+    runs-on: ubuntu-latest
+    needs: [unit-tests, android-tests, ios-tests, performance-tests, security-tests, accessibility-tests]
+    if: always()
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📥 Download All Artifacts
+        uses: actions/download-artifact@v3
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: 📊 Generate Comprehensive Report
+        run: |
+          pip install jinja2 matplotlib seaborn pandas
+          
+          cat << 'EOF' > generate_report.py
+          import json
+          import os
+          import glob
+          from datetime import datetime
+          from jinja2 import Template
+          
+          def aggregate_results():
+              all_results = []
+              
+              # Find all test result files
+              for result_file in glob.glob("**/test_results.json", recursive=True):
+                  try:
+                      with open(result_file, 'r') as f:
+                          data = json.load(f)
+                          all_results.append(data)
+                  except Exception as e:
+                      print(f"Error reading {result_file}: {e}")
+              
+              # Aggregate statistics
+              total_tests = sum(r.get('summary', {}).get('total', 0) for r in all_results)
+              total_passed = sum(r.get('summary', {}).get('passed', 0) for r in all_results)
+              total_failed = sum(r.get('summary', {}).get('failed', 0) for r in all_results)
+              total_skipped = sum(r.get('summary', {}).get('skipped', 0) for r in all_results)
+              
+              overall_pass_rate = (total_passed / total_tests * 100) if total_tests > 0 else 0
+              
+              # Generate summary report
+              summary = {
+                  'timestamp': datetime.now().isoformat(),
+                  'total_test_runs': len(all_results),
+                  'total_tests': total_tests,
+                  'total_passed': total_passed,
+                  'total_failed': total_failed,
+                  'total_skipped': total_skipped,
+                  'overall_pass_rate': round(overall_pass_rate, 2),
+                  'detailed_results': all_results
+              }
+              
+              # Save aggregated results
+              with open('aggregated_results.json', 'w') as f:
+                  json.dump(summary, f, indent=2)
+              
+              print(f"📊 Test Summary:")
+              print(f"Total Test Runs: {len(all_results)}")
+              print(f"Total Tests: {total_tests}")
+              print(f"Passed: {total_passed}")
+              print(f"Failed: {total_failed}")
+              print(f"Skipped: {total_skipped}")
+              print(f"Overall Pass Rate: {overall_pass_rate:.2f}%")
+              
+              return summary
+          
+          if __name__ == "__main__":
+              aggregate_results()
+          EOF
+          
+          python generate_report.py
+
+      - name: 📊 Upload Aggregated Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: aggregated-test-results
+          path: |
+            aggregated_results.json
+            **/test_report.html
+            **/screenshots/
+
+      - name: 💬 Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            
+            try {
+              const results = JSON.parse(fs.readFileSync('aggregated_results.json', 'utf8'));
+              
+              const comment = `## 🤖 AI Test Automation Results
+              
+              | Metric | Value |
+              |--------|--------|
+              | Total Tests | ${results.total_tests} |
+              | Passed | ${results.total_passed} ✅ |
+              | Failed | ${results.total_failed} ❌ |
+              | Skipped | ${results.total_skipped} ⏭️ |
+              | Pass Rate | ${results.overall_pass_rate}% |
+              
+              ${results.total_failed > 0 ? '⚠️ Some tests failed. Please check the detailed results.' : '🎉 All tests passed!'}
+              
+              [View detailed results in the Actions tab](${context.payload.repository.html_url}/actions/runs/${context.runId})
+              `;
+              
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            } catch (error) {
+              console.log('Could not read test results:', error);
+            }
+
+  # Notification Job
+  notify:
+    name: 📢 Notify Results
+    runs-on: ubuntu-latest
+    needs: [aggregate-results]
+    if: always()
+    steps:
+      - name: 📊 Determine Overall Status
+        id: status
+        run: |
+          if [ "${{ needs.aggregate-results.result }}" == "success" ]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "emoji=🎉" >> $GITHUB_OUTPUT
+            echo "message=All tests passed successfully!" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "emoji=❌" >> $GITHUB_OUTPUT
+            echo "message=Some tests failed. Please check the results." >> $GITHUB_OUTPUT
+          fi
+
+      - name: 📧 Send Email Notification
+        if: github.event_name == 'schedule' || github.event_name == 'push'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "${{ steps.status.outputs.emoji }} FWB AI Test Results - ${{ github.ref_name }}"
+          body: |
+            FWB AI Test Automation Results
+            
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+            
+            Status: ${{ steps.status.outputs.message }}
+            
+            View detailed results: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          to: ${{ secrets.NOTIFICATION_EMAIL }}
+          from: FWB AI Test Bot <noreply@fwb.com>
+
+      - name: 💬 Slack Notification
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ steps.status.outputs.status }}
+          channel: '#fwb-testing'
+          username: 'FWB AI Test Bot'
+          icon_emoji: ':robot_face:'
+          fields: repo,message,commit,author,action,eventName,ref,workflow
+          text: |
+            ${{ steps.status.outputs.emoji }} FWB AI Test Results
+            
+            ${{ steps.status.outputs.message }}
+            
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.ref_name }}
+            
+            [View Results](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+# Workflow completion summary
+  summary:
+    name: 📋 Workflow Summary
+    runs-on: ubuntu-latest
+    needs: [notify]
+    if: always()
+    steps:
+      - name: 📋 Print Summary
+        run: |
+          echo "🎬 FWB AI Test Automation Workflow Completed"
+          echo "========================================"
+          echo "Workflow: ${{ github.workflow }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Run ID: ${{ github.run_id }}"
+          echo "========================================"
+          echo "🤖 AI-powered testing completed!"

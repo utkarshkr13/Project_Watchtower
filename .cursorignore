@@ -1,0 +1,38 @@
+# Cursor ignore file - excludes paths from analysis and indexing
+
+# Dart/Flutter build artifacts
+.dart_tool/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+
+# Package cache
+.pub-cache/
+
+# iOS
+ios/Pods/
+ios/Runner.xcworkspace/xcuserdata/
+ios/Runner.xcodeproj/xcuserdata/
+ios/build/
+ios/DerivedData/
+
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+android/gradle/
+android/local.properties
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Dependencies that cause analysis warnings
+**/node_modules/
+**/.pub-cache/
+**/ios/Pods/
+**/android/.gradle/
+
