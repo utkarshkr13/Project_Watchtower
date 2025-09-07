@@ -37,7 +37,7 @@ on:
         type: string
 
 env:
-  FLUTTER_VERSION: '3.27.0'
+  FLUTTER_VERSION: '3.24.0'
   JAVA_VERSION: '17'
   XCODE_VERSION: '15.0'
 
@@ -76,6 +76,14 @@ jobs:
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
+
+      - name: 🔍 Verify Dart SDK Version
+        run: |
+          echo "Flutter version:"
+          flutter --version
+          echo "Dart SDK version:"
+          dart --version
+          echo "Expected Dart SDK: 3.7.0 or higher"
 
       - name: 📦 Get Flutter Dependencies
         run: |
