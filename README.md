@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Project Watch Tower 🏰
 
 **Watch Together, Discover Together**
@@ -155,3 +156,7 @@ This project is private and proprietary.
 ---
 
 **Project Watch Tower** - Building the future of social entertainment, one feature at a time. 🚀
+=======
+# Project_Watchtower
+Movie Recommendation App
+>>>>>>> df757c510aba962b3937f4159624bf306cd2f525
