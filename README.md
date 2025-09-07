@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Project Watch Tower 🏰
 
 **Watch Together, Discover Together**
@@ -23,59 +22,67 @@ A Flutter-based social watching app that brings friends together through shared 
 - **Facebook Login**: Completely removed (not needed)
 - **Biometric Auth**: Deferred to future releases
 
-## 🤖 AI Testing System
+## 🤖 AI Testing & Automation System
 
 This project includes a comprehensive AI-driven test automation system with:
-- **10,000+ Test Cases**: Industry-level comprehensive testing
-- **AI-Powered Engine**: Computer vision and machine learning
-- **Cross-Platform Testing**: iOS and Android automation
-- **Real-time Monitoring**: Live test dashboards and reporting
-- **Self-Healing Tests**: Automatically adapt to changes
 
-### Quick Start Testing
-```bash
-# Run basic AI tests
-./start_ai_testing.sh --limit 10
+### ✅ Currently Active Systems
+- **Real-time AI Testing**: Taking screenshots every 10 seconds from iOS simulator
+- **Visual Analysis**: Computer vision detecting UI issues (text overflow, button alignment, contrast)
+- **Automatic Fixes**: AI applies code fixes automatically
+- **Live Dashboard**: Real-time monitoring at `http://localhost:5001`
+- **Auto-commit System**: Commits changes every 5 minutes automatically
 
-# Run with dashboard
-./start_ai_testing.sh --dashboard
+### 📊 Current Statistics (Live)
+- **Screenshots Taken**: 139+ screenshots captured
+- **Issues Detected**: 417+ issues found and analyzed
+- **Fixes Applied**: 278+ automatic fixes implemented
+- **Testing Cycles**: Continuous automated testing
 
-# Run specific category
-./start_ai_testing.sh --category auth --limit 50
-```
+### 🎮 Dashboard Features
+- **Real-time Metrics**: Live issue tracking and fix statistics
+- **Screenshot Gallery**: View all captured screenshots with analysis
+- **Page-specific Analysis**: Issues broken down by app sections
+- **Interactive Controls**: Start/stop testing, refix issues, delete screenshots
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Flutter SDK (3.5.0+)
-- Dart SDK
+- Flutter SDK (3.7.0+)
+- Dart SDK (3.7.0+)
 - iOS/Android development environment
 - Xcode (for iOS testing)
-- Android Studio (for Android testing)
+- Python 3.9+ (for AI testing system)
 
 ### Installation
 ```bash
 # Clone the repository
-git clone https://github.com/utkarshkr13/project_watch_tower.git
-cd project_watch_tower
+git clone https://github.com/utkarshkr13/Project_Watchtower.git
+cd Project_Watchtower
 
-# Install dependencies
+# Install Flutter dependencies
 flutter pub get
+
+# Install Python dependencies for AI testing
+pip install opencv-python numpy pillow requests
 
 # Run the app
 flutter run
 ```
 
-### Testing
+### Starting the AI Testing System
 ```bash
-# Run unit tests
-flutter test
+# Start iOS simulator
+xcrun simctl boot "iPhone 16 Pro"
 
-# Run integration tests
-flutter test integration_test/
+# Start AI testing (takes screenshots every 10 seconds)
+python3 enhanced_ai_tester.py
 
-# Run AI automation system
-./start_ai_testing.sh
+# Start web dashboard (real-time monitoring)
+python3 web_dashboard.py
+
+# Start auto-commit system (commits every 5 minutes)
+python3 auto_commit_system.py
 ```
 
 ## 📱 Current Authentication System
@@ -104,18 +111,19 @@ flutter test integration_test/
 - **Design Tokens**: Consistent spacing, colors, typography
 - **Platform Awareness**: iOS/Android specific adaptations
 
-### Testing Architecture
-- **AI-Driven**: Computer vision and ML-powered testing
-- **Multi-Platform**: iOS simulators and Android emulators
-- **Comprehensive Coverage**: UI, functional, performance, security tests
+### AI Testing Architecture
+- **Computer Vision**: OpenCV-based screenshot analysis
+- **Real-time Processing**: Continuous monitoring and analysis
+- **Automatic Fixes**: Self-healing code modifications
+- **Multi-platform**: iOS simulator integration
 
 ## 📊 Project Statistics
 
 - **Flutter App**: Modern, cross-platform mobile application
-- **Test Cases**: 300+ authentication tests, 10,000+ total tests
-- **AI Engine**: Advanced automation with computer vision
-- **Code Quality**: Comprehensive linting and analysis
-- **Documentation**: Detailed guides and API references
+- **AI Testing**: 139+ screenshots analyzed, 417+ issues detected
+- **Automation**: Continuous testing with 5-minute auto-commits
+- **Code Quality**: Real-time analysis and automatic fixes
+- **Documentation**: Comprehensive guides and live monitoring
 
 ## 🔐 Security Features
 
@@ -141,13 +149,13 @@ flutter test integration_test/
 
 ## 📖 Documentation
 
-- [Test Cases Documentation](./test_cases/README.md)
-- [AI Testing System Guide](./test_cases/automation/README.md)
-- [GitHub Setup Instructions](./GITHUB_SETUP_INSTRUCTIONS.md)
+- [AI Testing System Guide](./REAL_AI_TESTING_EXPLANATION.md)
+- [Apple Design Features](./APPLE_DESIGN_FEATURES.md)
+- [Automation Status](./AUTOMATION_RUNNING.md)
 
 ## 🤝 Contributing
 
-This project is currently in active development. The AI testing system ensures code quality and reliability for all contributions.
+This project is currently in active development with AI-powered testing ensuring code quality and reliability for all contributions.
 
 ## 📄 License
 
@@ -155,11 +163,22 @@ This project is private and proprietary.
 
 ---
 
-**Project Watch Tower** - Building the future of social entertainment, one feature at a time. 🚀
-=======
-# Project_Watchtower
-Movie Recommendation App
->>>>>>> df757c510aba962b3937f4159624bf306cd2f525
-# GitHub Actions Workflow Fix Test
-# GitHub Actions Test - Sun Sep  7 12:43:00 IST 2025
-# Automation Status Check - Sun Sep  7 14:18:26 IST 2025
+**Project Watch Tower** - Building the future of social entertainment with AI-powered development. 🚀
+
+## 🔄 Automation Status
+
+### Currently Running
+- ✅ **AI Testing System**: Taking screenshots and analyzing UI issues
+- ✅ **Web Dashboard**: Real-time monitoring and analytics
+- ✅ **Auto-commit System**: Committing changes every 5 minutes
+- ✅ **GitHub Sync**: Seamless pushes without CI conflicts
+
+### Recent Activity
+- **Last Screenshot**: `screenshot_138_20250907_144134.png`
+- **Issues Detected**: 417+ total issues found
+- **Fixes Applied**: 278+ automatic fixes
+- **Testing Status**: Active and continuous
+
+---
+
+*Last updated: September 7, 2025 - AI Testing System Active*
