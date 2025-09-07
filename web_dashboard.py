@@ -65,26 +65,26 @@ class AITestingDashboard:
         
         @self.app.route('/api/start_testing', methods=['POST'])
         def start_testing():
-            """Start AI testing system"""
+            """Start REAL AI testing system"""
             try:
-                # Start the AI testing system
-                subprocess.Popen(['python3', 'smart_ai_fixer.py'], 
+                # Start the REAL AI testing system
+                subprocess.Popen(['python3', 'real_ai_tester.py'], 
                                stdout=subprocess.PIPE, 
                                stderr=subprocess.PIPE)
                 
-                self.add_activity("🚀 AI Testing System Started", "success")
-                return jsonify({"status": "success", "message": "AI Testing Started"})
+                self.add_activity("🚀 REAL AI Testing System Started - Taking actual screenshots!", "success")
+                return jsonify({"status": "success", "message": "REAL AI Testing Started"})
             except Exception as e:
                 return jsonify({"status": "error", "message": str(e)})
         
         @self.app.route('/api/stop_testing', methods=['POST'])
         def stop_testing():
-            """Stop AI testing system"""
+            """Stop REAL AI testing system"""
             try:
                 # Kill any running AI testing processes
-                subprocess.run(['pkill', '-f', 'smart_ai_fixer.py'])
-                self.add_activity("🛑 AI Testing System Stopped", "warning")
-                return jsonify({"status": "success", "message": "AI Testing Stopped"})
+                subprocess.run(['pkill', '-f', 'real_ai_tester.py'])
+                self.add_activity("🛑 REAL AI Testing System Stopped", "warning")
+                return jsonify({"status": "success", "message": "REAL AI Testing Stopped"})
             except Exception as e:
                 return jsonify({"status": "error", "message": str(e)})
     
@@ -151,30 +151,23 @@ class AITestingDashboard:
         # Emit updates
         self.socketio.emit('metrics_update', self.dashboard_data)
     
-    def simulate_ai_testing(self):
-        """Simulate AI testing for demo purposes"""
-        import random
-        
-        pages = ['home_screen', 'more_section', 'friend_section', 'movie_recommendation', 'watch_party']
-        
+    def monitor_real_testing(self):
+        """Monitor real AI testing results"""
         while True:
-            time.sleep(random.uniform(2, 8))  # Random interval between 2-8 seconds
+            time.sleep(5)  # Check every 5 seconds
             
-            # Simulate issue detection
-            page = random.choice(pages)
-            issues = random.randint(1, 5)
-            fixes = random.randint(0, issues)
-            recommendations = random.randint(1, 3)
-            
-            self.update_metrics(issues, fixes, recommendations, page)
-            
-            # Add activity
-            if fixes > 0:
-                self.add_activity(f"🔧 Fixed {fixes} issues in {page.replace('_', ' ').title()}", "success")
-            if issues > 0:
-                self.add_activity(f"🔍 Detected {issues} issues in {page.replace('_', ' ').title()}", "info")
-            if recommendations > 0:
-                self.add_activity(f"💡 Generated {recommendations} recommendations for {page.replace('_', ' ').title()}", "info")
+            # Check if real AI tester is running
+            try:
+                result = subprocess.run(['pgrep', '-f', 'real_ai_tester.py'], 
+                                      capture_output=True, text=True)
+                if result.returncode == 0:
+                    # Real testing is running, add monitoring activity
+                    self.add_activity("📸 Taking real screenshots and analyzing...", "info")
+                else:
+                    # No real testing running
+                    pass
+            except:
+                pass
     
     def run_dashboard(self, port=5001, debug=False):
         """Run the dashboard server"""
@@ -183,9 +176,9 @@ class AITestingDashboard:
         print("📊 Real-time analytics and monitoring enabled")
         print("🎯 Interactive controls for AI testing system")
         
-        # Start simulation thread for demo
-        simulation_thread = threading.Thread(target=self.simulate_ai_testing, daemon=True)
-        simulation_thread.start()
+        # Start monitoring thread for real testing
+        monitoring_thread = threading.Thread(target=self.monitor_real_testing, daemon=True)
+        monitoring_thread.start()
         
         # Open browser automatically
         threading.Timer(1.5, lambda: webbrowser.open(f'http://localhost:{port}')).start()
