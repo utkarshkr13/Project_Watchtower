@@ -83,6 +83,12 @@
             color: white;
             box-shadow: 0 4px 14px rgba(255, 59, 48, 0.3);
         }
+        
+        .btn-manual {
+            background: #4ecdc4;
+            color: white;
+            box-shadow: 0 4px 14px rgba(78, 205, 196, 0.3);
+        }
 
         .btn:hover {
             transform: translateY(-1px);
@@ -949,6 +955,77 @@
                         type: 'warning'
                     });
                 }
+            });
+        }
+        
+        function takeManualScreenshot() {
+            triggerHapticFeedback();
+            
+            // Show loading state
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<span class="status-indicator status-running"></span> 📸 Taking Screenshot...';
+            button.disabled = true;
+            
+            fetch('/api/take_manual_screenshot', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    model: 'claude' // Default model
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    addActivity({
+                        timestamp: new Date().toLocaleTimeString(),
+                        message: `📸 Manual Screenshot Taken: ${data.screenshot.filename}`,
+                        type: 'success'
+                    });
+                    
+                    // Show analysis results
+                    if (data.analysis && data.analysis.recommendations) {
+                        const recommendations = data.analysis.recommendations;
+                        if (recommendations.length > 0) {
+                            recommendations.forEach(rec => {
+                                addActivity({
+                                    timestamp: new Date().toLocaleTimeString(),
+                                    message: `🔍 ${rec.type.toUpperCase()}: ${rec.message}`,
+                                    type: rec.severity === 'high' ? 'error' : 'warning'
+                                });
+                            });
+                        } else {
+                            addActivity({
+                                timestamp: new Date().toLocaleTimeString(),
+                                message: '✅ No issues detected in screenshot',
+                                type: 'success'
+                            });
+                        }
+                    }
+                    
+                    // Refresh screenshots
+                    refreshScreenshots();
+                } else {
+                    addActivity({
+                        timestamp: new Date().toLocaleTimeString(),
+                        message: `❌ Screenshot Failed: ${data.error}`,
+                        type: 'error'
+                    });
+                }
+            })
+            .catch(error => {
+                addActivity({
+                    timestamp: new Date().toLocaleTimeString(),
+                    message: `❌ Screenshot Error: ${error.message}`,
+                    type: 'error'
+                });
+            })
+            .finally(() => {
+                // Restore button state
+                button.innerHTML = originalText;
+                button.disabled = false;
             });
         }
 

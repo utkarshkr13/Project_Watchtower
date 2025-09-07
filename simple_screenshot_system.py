@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
 """
-Manual Screenshot System for Project Watch Tower
-Real AI Analysis with Model Selection
+Simple Screenshot System for Project Watch Tower
+Works with iOS Simulator
 """
 
 import os
 import subprocess
 import json
-import base64
 from datetime import datetime
 import cv2
 import numpy as np
 
-class ManualScreenshotSystem:
+class SimpleScreenshotSystem:
     def __init__(self):
         self.screenshots_dir = "manual_screenshots"
         self.analysis_dir = "ai_analysis"
@@ -24,58 +23,64 @@ class ManualScreenshotSystem:
         os.makedirs(self.analysis_dir, exist_ok=True)
         
     def take_screenshot(self):
-        """Take a real screenshot from iOS simulator"""
+        """Take a screenshot from iOS simulator"""
         try:
-            # Get list of booted simulators
-            result = subprocess.run(['xcrun', 'simctl', 'list', 'devices', 'booted'], 
-                                 capture_output=True, text=True)
-            
-            if result.returncode != 0 or not result.stdout.strip():
-                return {"success": False, "error": "No booted iOS simulator found"}
-            
-            # Extract device ID from output
-            lines = result.stdout.strip().split('\n')
-            device_id = None
-            for line in lines:
-                if 'iPhone' in line and 'Booted' in line:
-                    # Extract device ID (format: "iPhone 16 Pro (12345678-1234-1234-1234-123456789012) (Booted)")
-                    parts = line.split('(')
-                    if len(parts) >= 2:
-                        device_id = parts[1].split(')')[0]
-                        break
-            
-            if not device_id:
-                return {"success": False, "error": "Could not extract device ID"}
-            
             # Generate filename with timestamp
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"manual_screenshot_{timestamp}.png"
             filepath = os.path.join(self.screenshots_dir, filename)
             
-            # Take screenshot using the correct command format
-            screenshot_cmd = ['xcrun', 'simctl', 'io', device_id, 'screenshot', filepath]
-            result = subprocess.run(screenshot_cmd, capture_output=True, text=True)
+            # Try different screenshot methods
+            success = False
             
-            if result.returncode == 0 and os.path.exists(filepath):
-                # Get file size
+            # Method 1: Try with booted device
+            try:
+                result = subprocess.run(['xcrun', 'simctl', 'io', 'booted', 'screenshot', filepath], 
+                                      capture_output=True, text=True, timeout=10)
+                if result.returncode == 0 and os.path.exists(filepath) and os.path.getsize(filepath) > 0:
+                    success = True
+            except:
+                pass
+            
+            # Method 2: Try with specific device ID
+            if not success:
+                try:
+                    # Get booted device ID
+                    result = subprocess.run(['xcrun', 'simctl', 'list', 'devices', 'booted'], 
+                                          capture_output=True, text=True)
+                    if result.returncode == 0:
+                        lines = result.stdout.strip().split('\n')
+                        for line in lines:
+                            if 'iPhone' in line and 'Booted' in line:
+                                # Extract device ID
+                                parts = line.split('(')
+                                if len(parts) >= 2:
+                                    device_id = parts[1].split(')')[0]
+                                    result = subprocess.run(['xcrun', 'simctl', 'io', device_id, 'screenshot', filepath], 
+                                                          capture_output=True, text=True, timeout=10)
+                                    if result.returncode == 0 and os.path.exists(filepath) and os.path.getsize(filepath) > 0:
+                                        success = True
+                                        break
+                except:
+                    pass
+            
+            if success:
                 file_size = os.path.getsize(filepath)
-                
                 return {
                     "success": True,
                     "filename": filename,
                     "filepath": filepath,
                     "file_size": file_size,
-                    "timestamp": timestamp,
-                    "device_id": device_id
+                    "timestamp": timestamp
                 }
             else:
-                return {"success": False, "error": f"Screenshot failed: {result.stderr}"}
+                return {"success": False, "error": "Could not take screenshot - simulator may not be ready"}
                 
         except Exception as e:
             return {"success": False, "error": f"Exception: {str(e)}"}
     
-    def analyze_screenshot(self, image_path, model="claude"):
-        """Analyze screenshot with real AI analysis"""
+    def analyze_screenshot(self, image_path):
+        """Analyze screenshot with real computer vision"""
         try:
             # Load image with OpenCV
             image = cv2.imread(image_path)
@@ -101,7 +106,6 @@ class ManualScreenshotSystem:
                     "channels": channels,
                     "file_size": os.path.getsize(image_path)
                 },
-                "model_used": model,
                 "analysis": analysis,
                 "recommendations": self.generate_recommendations(analysis)
             }
@@ -123,7 +127,6 @@ class ManualScreenshotSystem:
         """Perform real computer vision analysis"""
         # Convert to different color spaces for analysis
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
         
         # Real analysis metrics
         analysis = {
@@ -268,10 +271,10 @@ class ManualScreenshotSystem:
         return recommendations
 
 def main():
-    """Test the manual screenshot system"""
-    system = ManualScreenshotSystem()
+    """Test the simple screenshot system"""
+    system = SimpleScreenshotSystem()
     
-    print("📸 Manual Screenshot System Test")
+    print("📸 Simple Screenshot System Test")
     print("=" * 50)
     
     # Take screenshot
@@ -281,7 +284,6 @@ def main():
     if result["success"]:
         print(f"✅ Screenshot saved: {result['filename']}")
         print(f"   File size: {result['file_size']} bytes")
-        print(f"   Device ID: {result['device_id']}")
         
         # Analyze screenshot
         print("\n🔍 Analyzing screenshot...")
