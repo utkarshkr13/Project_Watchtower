@@ -13,12 +13,16 @@ from datetime import datetime
 from flask import Flask, render_template, jsonify, request, send_file
 from flask_socketio import SocketIO, emit
 import webbrowser
+from manual_screenshot_system import ManualScreenshotSystem
 
 class AITestingDashboard:
     def __init__(self):
         self.app = Flask(__name__)
         self.app.config['SECRET_KEY'] = 'project_watch_tower_ai_dashboard'
         self.socketio = SocketIO(self.app, cors_allowed_origins="*")
+        
+        # Initialize manual screenshot system
+        self.manual_screenshot_system = ManualScreenshotSystem()
         
         # Dashboard data
         self.dashboard_data = {
@@ -213,6 +217,86 @@ class AITestingDashboard:
                 return jsonify({"status": "success", "message": f"Refixing issues from {filename}"})
             except Exception as e:
                 return jsonify({"status": "error", "message": str(e)})
+        
+        @self.app.route('/api/take_manual_screenshot', methods=['POST'])
+        def take_manual_screenshot():
+            """Take a manual screenshot and analyze it"""
+            try:
+                # Take screenshot using manual system
+                screenshot_result = self.manual_screenshot_system.take_screenshot()
+                
+                if screenshot_result['success']:
+                    # Analyze the screenshot
+                    analysis_result = self.manual_screenshot_system.analyze_screenshot(
+                        screenshot_result['filepath'], 
+                        model=request.json.get('model', 'claude')
+                    )
+                    
+                    if analysis_result['success']:
+                        # Update dashboard data with real analysis
+                        self.update_dashboard_with_real_analysis(analysis_result['report'])
+                        
+                        self.add_activity(f"📸 Manual screenshot taken: {screenshot_result['filename']}", "success")
+                        
+                        return jsonify({
+                            'success': True,
+                            'screenshot': {
+                                'filename': screenshot_result['filename'],
+                                'file_size': screenshot_result['file_size'],
+                                'timestamp': screenshot_result['timestamp']
+                            },
+                            'analysis': analysis_result['report'],
+                            'message': 'Screenshot taken and analyzed successfully'
+                        })
+                    else:
+                        return jsonify({
+                            'success': False,
+                            'error': f"Analysis failed: {analysis_result['error']}"
+                        })
+                else:
+                    return jsonify({
+                        'success': False,
+                        'error': f"Screenshot failed: {screenshot_result['error']}"
+                    })
+            except Exception as e:
+                return jsonify({
+                    'success': False,
+                    'error': str(e)
+                })
+        
+        @self.app.route('/api/get_manual_screenshots', methods=['GET'])
+        def get_manual_screenshots():
+            """Get list of manual screenshots"""
+            try:
+                screenshots = []
+                screenshots_dir = self.manual_screenshot_system.screenshots_dir
+                
+                if os.path.exists(screenshots_dir):
+                    for filename in os.listdir(screenshots_dir):
+                        if filename.endswith('.png'):
+                            filepath = os.path.join(screenshots_dir, filename)
+                            file_size = os.path.getsize(filepath)
+                            timestamp = filename.replace('manual_screenshot_', '').replace('.png', '')
+                            
+                            screenshots.append({
+                                'filename': filename,
+                                'file_size': file_size,
+                                'timestamp': timestamp,
+                                'path': filepath
+                            })
+                
+                # Sort by timestamp (newest first)
+                screenshots.sort(key=lambda x: x['timestamp'], reverse=True)
+                
+                return jsonify({
+                    'success': True,
+                    'screenshots': screenshots
+                })
+            except Exception as e:
+                return jsonify({
+                    'success': False,
+                    'error': str(e)
+                })
     
     def setup_socket_events(self):
         """Setup SocketIO events for real-time updates"""
@@ -243,6 +327,38 @@ class AITestingDashboard:
         # Emit to all connected clients
         self.socketio.emit('activity_update', activity)
         self.socketio.emit('dashboard_data', self.dashboard_data)
+    
+    def update_dashboard_with_real_analysis(self, analysis_report):
+        """Update dashboard with real analysis data"""
+        try:
+            # Update session stats
+            self.dashboard_data['session_stats']['screenshots_taken'] += 1
+            self.dashboard_data['session_stats']['analyses_performed'] += 1
+            
+            # Count real issues from analysis
+            recommendations = analysis_report.get('recommendations', [])
+            real_issues = len([r for r in recommendations if r.get('severity') in ['high', 'medium']])
+            
+            # Update issue counts
+            self.dashboard_data['total_issues'] += real_issues
+            self.dashboard_data['current_issues'] = real_issues
+            self.dashboard_data['total_recommendations'] += len(recommendations)
+            
+            # Update performance metrics
+            if real_issues > 0:
+                self.dashboard_data['performance_metrics']['issues_per_minute'] = (
+                    self.dashboard_data['total_issues'] / 
+                    max(1, (datetime.now() - datetime.strptime(
+                        self.dashboard_data['session_stats']['start_time'], 
+                        "%Y-%m-%d %H:%M:%S"
+                    )).total_seconds() / 60)
+                )
+            
+            # Emit updated data
+            self.socketio.emit('dashboard_data', self.dashboard_data)
+            
+        except Exception as e:
+            print(f"Error updating dashboard with real analysis: {e}")
     
     def update_metrics(self, issues_detected=0, fixes_applied=0, recommendations=0, page=None):
         """Update dashboard metrics"""
