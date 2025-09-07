@@ -37,7 +37,7 @@ on:
         type: string
 
 env:
-  FLUTTER_VERSION: '3.24.0'
+  FLUTTER_VERSION: '3.27.0'
   JAVA_VERSION: '17'
   XCODE_VERSION: '15.0'
 
@@ -67,6 +67,8 @@ jobs:
             exit 1
           fi
           echo "✅ Project structure validated"
+          echo "📁 Project contents:"
+          ls -la
 
       - name: 🦋 Setup Flutter
         id: flutter-setup
@@ -76,7 +78,16 @@ jobs:
           cache: true
 
       - name: 📦 Get Flutter Dependencies
-        run: flutter pub get
+        run: |
+          echo "Getting Flutter dependencies..."
+          flutter pub get
+          if [ $? -ne 0 ]; then
+            echo "❌ Failed to get dependencies"
+            echo "📋 Checking pubspec.yaml:"
+            cat pubspec.yaml
+            exit 1
+          fi
+          echo "✅ Dependencies resolved successfully"
 
       - name: 🔍 Flutter Doctor
         run: flutter doctor -v
