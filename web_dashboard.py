@@ -10,7 +10,7 @@ import threading
 import subprocess
 import os
 from datetime import datetime
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, send_file
 from flask_socketio import SocketIO, emit
 import webbrowser
 
@@ -62,6 +62,60 @@ class AITestingDashboard:
         @self.app.route('/api/data')
         def get_data():
             return jsonify(self.dashboard_data)
+        
+        @self.app.route('/api/screenshots')
+        def get_screenshots():
+            """Get all screenshots with their analysis data"""
+            screenshots = []
+            screenshots_dir = "ai_screenshots"
+            
+            if os.path.exists(screenshots_dir):
+                for filename in os.listdir(screenshots_dir):
+                    if filename.endswith('.png'):
+                        file_path = os.path.join(screenshots_dir, filename)
+                        file_stats = os.stat(file_path)
+                        
+                        # Extract timestamp from filename
+                        timestamp = filename.split('_')[-1].replace('.png', '')
+                        
+                        screenshots.append({
+                            'filename': filename,
+                            'path': file_path,
+                            'timestamp': timestamp,
+                            'size': file_stats.st_size,
+                            'created': datetime.fromtimestamp(file_stats.st_ctime).isoformat()
+                        })
+            
+            # Sort by creation time (newest first)
+            screenshots.sort(key=lambda x: x['created'], reverse=True)
+            return jsonify(screenshots)
+        
+        @self.app.route('/api/screenshot/<filename>')
+        def get_screenshot(filename):
+            """Serve screenshot image"""
+            screenshots_dir = "ai_screenshots"
+            file_path = os.path.join(screenshots_dir, filename)
+            
+            if os.path.exists(file_path):
+                return send_file(file_path, mimetype='image/png')
+            else:
+                return jsonify({"error": "Screenshot not found"}), 404
+        
+        @self.app.route('/api/delete_screenshot/<filename>', methods=['DELETE'])
+        def delete_screenshot(filename):
+            """Delete a screenshot"""
+            screenshots_dir = "ai_screenshots"
+            file_path = os.path.join(screenshots_dir, filename)
+            
+            try:
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                    self.add_activity(f"🗑️ Deleted screenshot: {filename}", "info")
+                    return jsonify({"status": "success", "message": "Screenshot deleted"})
+                else:
+                    return jsonify({"status": "error", "message": "Screenshot not found"}), 404
+            except Exception as e:
+                return jsonify({"status": "error", "message": str(e)}), 500
         
         @self.app.route('/api/start_testing', methods=['POST'])
         def start_testing():

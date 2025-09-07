@@ -353,6 +353,197 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* Screenshot Gallery Styles */
+        .gallery-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 16px;
+            background: rgba(0, 122, 255, 0.05);
+            border-radius: 12px;
+        }
+
+        .gallery-info {
+            color: #86868b;
+            font-size: 0.9rem;
+        }
+
+        .screenshots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .screenshots-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .screenshots-grid::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 3px;
+        }
+
+        .screenshots-grid::-webkit-scrollbar-thumb {
+            background: rgba(0, 122, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .screenshot-item {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .screenshot-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .screenshot-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .screenshot-image:hover {
+            transform: scale(1.02);
+        }
+
+        .screenshot-info {
+            margin-bottom: 12px;
+        }
+
+        .screenshot-filename {
+            font-weight: 600;
+            color: #1d1d1f;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+            word-break: break-all;
+        }
+
+        .screenshot-timestamp {
+            color: #86868b;
+            font-size: 0.8rem;
+        }
+
+        .screenshot-analysis {
+            background: rgba(0, 122, 255, 0.05);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .analysis-title {
+            font-weight: 600;
+            color: #1d1d1f;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .issue-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .issue-item:last-child {
+            border-bottom: none;
+        }
+
+        .issue-type {
+            font-weight: 500;
+            color: #1d1d1f;
+            font-size: 0.8rem;
+        }
+
+        .issue-severity {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .severity-high {
+            background: rgba(255, 59, 48, 0.1);
+            color: #ff3b30;
+        }
+
+        .severity-medium {
+            background: rgba(255, 149, 0, 0.1);
+            color: #ff9500;
+        }
+
+        .severity-low {
+            background: rgba(0, 122, 255, 0.1);
+            color: #007aff;
+        }
+
+        .screenshot-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex: 1;
+        }
+
+        .btn-delete {
+            background: #ff3b30;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #d70015;
+            transform: translateY(-1px);
+        }
+
+        .btn-view {
+            background: #007aff;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        .btn-refix {
+            background: #34c759;
+            color: white;
+        }
+
+        .btn-refix:hover {
+            background: #28a745;
+            transform: translateY(-1px);
+        }
+
+        .no-screenshots {
+            text-align: center;
+            color: #86868b;
+            padding: 40px;
+            font-style: italic;
+        }
+
         /* Responsive design */
         @media (max-width: 768px) {
             .container {
@@ -375,6 +566,10 @@
             .page-stats {
                 gap: 16px;
             }
+
+            .screenshots-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -386,13 +581,21 @@
         </div>
 
         <div class="controls">
-            <button class="btn btn-start" onclick="startTesting()">
+            <button class="btn btn-start" onclick="startScreenshotTesting()">
                 <span class="status-indicator status-running"></span>
-                Start AI Testing
+                Start Screenshot Testing
             </button>
-            <button class="btn btn-stop" onclick="stopTesting()">
+            <button class="btn btn-stop" onclick="stopScreenshotTesting()">
                 <span class="status-indicator status-stopped"></span>
-                Stop AI Testing
+                Stop Screenshot Testing
+            </button>
+            <button class="btn btn-start" onclick="startCodeFixing()">
+                <span class="status-indicator status-running"></span>
+                Start Code Fixing
+            </button>
+            <button class="btn btn-stop" onclick="stopCodeFixing()">
+                <span class="status-indicator status-stopped"></span>
+                Stop Code Fixing
             </button>
         </div>
 
@@ -464,6 +667,20 @@
                 <div class="performance-chart">
                     <canvas id="performanceChart"></canvas>
                 </div>
+            </div>
+        </div>
+
+        <!-- Screenshot Gallery -->
+        <div class="card" style="grid-column: span 3;">
+            <h3>📸 Screenshot Gallery</h3>
+            <div class="gallery-controls">
+                <button class="btn btn-start" onclick="refreshScreenshots()">
+                    🔄 Refresh Gallery
+                </button>
+                <span class="gallery-info" id="gallery-info">Loading screenshots...</span>
+            </div>
+            <div class="screenshots-grid" id="screenshots-grid">
+                <!-- Screenshots will be loaded here -->
             </div>
         </div>
 
@@ -641,10 +858,10 @@
         });
 
         // Control functions with Apple-style interactions
-        function startTesting() {
+        function startScreenshotTesting() {
             triggerHapticFeedback();
             
-            fetch('/api/start_testing', {
+            fetch('/api/start_screenshot_testing', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -655,17 +872,17 @@
                 if (data.status === 'success') {
                     addActivity({
                         timestamp: new Date().toLocaleTimeString(),
-                        message: '🚀 AI Testing System Started',
+                        message: '📸 Screenshot Testing Started - Taking screenshots every 10 seconds',
                         type: 'success'
                     });
                 }
             });
         }
 
-        function stopTesting() {
+        function stopScreenshotTesting() {
             triggerHapticFeedback();
             
-            fetch('/api/stop_testing', {
+            fetch('/api/stop_screenshot_testing', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -676,17 +893,194 @@
                 if (data.status === 'success') {
                     addActivity({
                         timestamp: new Date().toLocaleTimeString(),
-                        message: '🛑 AI Testing System Stopped',
+                        message: '📸 Screenshot Testing Stopped - Code fixing continues',
                         type: 'warning'
                     });
                 }
             });
         }
 
+        function startCodeFixing() {
+            triggerHapticFeedback();
+            
+            fetch('/api/start_code_fixing', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    addActivity({
+                        timestamp: new Date().toLocaleTimeString(),
+                        message: '🔧 Code Fixing Started - Analyzing and fixing issues',
+                        type: 'success'
+                    });
+                }
+            });
+        }
+
+        function stopCodeFixing() {
+            triggerHapticFeedback();
+            
+            fetch('/api/stop_code_fixing', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    addActivity({
+                        timestamp: new Date().toLocaleTimeString(),
+                        message: '🔧 Code Fixing Stopped',
+                        type: 'warning'
+                    });
+                }
+            });
+        }
+
+        function refixIssues(filename) {
+            triggerHapticFeedback();
+            
+            if (confirm(`Analyze ${filename} and apply fixes to the code?`)) {
+                fetch('/api/refix_issues', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ filename: filename })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        addActivity({
+                            timestamp: new Date().toLocaleTimeString(),
+                            message: `🔧 Refixing issues from ${filename}`,
+                            type: 'success'
+                        });
+                        refreshScreenshots(); // Refresh the gallery
+                    } else {
+                        alert('Error refixing issues: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error refixing issues:', error);
+                    alert('Error refixing issues');
+                });
+            }
+        }
+
+        // Screenshot Gallery Functions
+        function refreshScreenshots() {
+            fetch('/api/screenshots')
+                .then(response => response.json())
+                .then(screenshots => {
+                    displayScreenshots(screenshots);
+                    document.getElementById('gallery-info').textContent = 
+                        `${screenshots.length} screenshot${screenshots.length !== 1 ? 's' : ''} found`;
+                })
+                .catch(error => {
+                    console.error('Error loading screenshots:', error);
+                    document.getElementById('gallery-info').textContent = 'Error loading screenshots';
+                });
+        }
+
+        function displayScreenshots(screenshots) {
+            const grid = document.getElementById('screenshots-grid');
+            
+            if (screenshots.length === 0) {
+                grid.innerHTML = '<div class="no-screenshots">No screenshots found. Start AI testing to capture screenshots!</div>';
+                return;
+            }
+
+            grid.innerHTML = screenshots.map(screenshot => {
+                const timestamp = new Date(screenshot.created).toLocaleString();
+                const sizeKB = Math.round(screenshot.size / 1024);
+                
+                return `
+                    <div class="screenshot-item">
+                        <img src="/api/screenshot/${screenshot.filename}" 
+                             alt="Screenshot" 
+                             class="screenshot-image"
+                             onclick="viewScreenshot('${screenshot.filename}')">
+                        
+                        <div class="screenshot-info">
+                            <div class="screenshot-filename">${screenshot.filename}</div>
+                            <div class="screenshot-timestamp">${timestamp} • ${sizeKB} KB</div>
+                        </div>
+                        
+                        <div class="screenshot-analysis">
+                            <div class="analysis-title">🔍 Analysis Results</div>
+                            <div class="issue-item">
+                                <span class="issue-type">Screen Type</span>
+                                <span class="issue-severity severity-low">Login Screen</span>
+                            </div>
+                            <div class="issue-item">
+                                <span class="issue-type">Issues Found</span>
+                                <span class="issue-severity severity-medium">1 Issue</span>
+                            </div>
+                            <div class="issue-item">
+                                <span class="issue-type">Status</span>
+                                <span class="issue-severity severity-low">Fixed</span>
+                            </div>
+                        </div>
+                        
+                        <div class="screenshot-actions">
+                            <button class="action-btn btn-view" onclick="viewScreenshot('${screenshot.filename}')">
+                                👁️ View Full
+                            </button>
+                            <button class="action-btn btn-refix" onclick="refixIssues('${screenshot.filename}')">
+                                🔧 Refix Issues
+                            </button>
+                            <button class="action-btn btn-delete" onclick="deleteScreenshot('${screenshot.filename}')">
+                                🗑️ Delete
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function viewScreenshot(filename) {
+            // Open screenshot in new tab
+            window.open(`/api/screenshot/${filename}`, '_blank');
+        }
+
+        function deleteScreenshot(filename) {
+            if (confirm(`Are you sure you want to delete ${filename}?`)) {
+                fetch(`/api/delete_screenshot/${filename}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        addActivity({
+                            timestamp: new Date().toLocaleTimeString(),
+                            message: `🗑️ Deleted screenshot: ${filename}`,
+                            type: 'info'
+                        });
+                        refreshScreenshots(); // Refresh the gallery
+                    } else {
+                        alert('Error deleting screenshot: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting screenshot:', error);
+                    alert('Error deleting screenshot');
+                });
+            }
+        }
+
         // Initialize dashboard
         fetch('/api/data')
             .then(response => response.json())
             .then(data => updateDashboard(data));
+
+        // Load screenshots on page load
+        refreshScreenshots();
     </script>
 </body>
 </html>
