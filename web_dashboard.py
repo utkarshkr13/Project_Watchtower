@@ -67,8 +67,8 @@ class AITestingDashboard:
         def start_testing():
             """Start REAL AI testing system"""
             try:
-                # Start the REAL AI testing system
-                subprocess.Popen(['python3', 'real_ai_tester.py'], 
+                # Start the Enhanced AI testing system
+                subprocess.Popen(['python3', 'enhanced_ai_tester.py'], 
                                stdout=subprocess.PIPE, 
                                stderr=subprocess.PIPE)
                 
@@ -82,7 +82,7 @@ class AITestingDashboard:
             """Stop REAL AI testing system"""
             try:
                 # Kill any running AI testing processes
-                subprocess.run(['pkill', '-f', 'real_ai_tester.py'])
+                subprocess.run(['pkill', '-f', 'enhanced_ai_tester.py'])
                 self.add_activity("🛑 REAL AI Testing System Stopped", "warning")
                 return jsonify({"status": "success", "message": "REAL AI Testing Stopped"})
             except Exception as e:
@@ -158,7 +158,7 @@ class AITestingDashboard:
             
             # Check if real AI tester is running
             try:
-                result = subprocess.run(['pgrep', '-f', 'real_ai_tester.py'], 
+                result = subprocess.run(['pgrep', '-f', 'enhanced_ai_tester.py'], 
                                       capture_output=True, text=True)
                 if result.returncode == 0:
                     # Real testing is running, add monitoring activity
