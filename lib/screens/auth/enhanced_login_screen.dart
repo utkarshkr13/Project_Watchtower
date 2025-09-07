@@ -298,7 +298,8 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen>
                     const SizedBox(height: 16),
                     
                     // Remember Me & Forgot Password
-                    _buildRememberMeRow(brightness, isIOS: isIOS),
+                    _buildRememberMeRow(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,brightness, isIOS: isIOS),
                     const SizedBox(height: 24),
                     
                     // Error Message
@@ -496,8 +497,10 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen>
     }
   }
 
-  Widget _buildRememberMeRow(Brightness brightness, {required bool isIOS}) {
+  Widget _buildRememberMeRow(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,Brightness brightness, {required bool isIOS}) {
     return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         if (isIOS)
           CupertinoSwitch(
@@ -545,6 +548,7 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen>
         ),
       ),
       child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Icon(
             Icons.error_outline,
@@ -619,6 +623,7 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen>
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0),
           child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Expanded(child: Divider(color: AppTheme.minimalDivider(brightness))),
               Padding(
@@ -626,6 +631,7 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen>
                 child: Text(
                   'Or continue with',
                   style: AppTheme.caption1.copyWith(
+                    overflow: TextOverflow.ellipsis,
                     color: AppTheme.secondaryText(brightness),
                     fontSize: 14,
                   ),
@@ -641,6 +647,7 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen>
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               // Google Sign In (Placeholder)
               Expanded(
@@ -717,6 +724,7 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen>
             Text(
               label,
               style: AppTheme.caption1.copyWith(
+                    overflow: TextOverflow.ellipsis,
                 color: isPlaceholder 
                     ? AppTheme.primaryText(brightness).withOpacity(0.7) // Increased opacity
                     : AppTheme.primaryText(brightness),
@@ -755,6 +763,7 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen>
             Text(
               'Don\'t have an account? ',
               style: AppTheme.caption1.copyWith(
+                    overflow: TextOverflow.ellipsis,
                 color: AppTheme.secondaryText(brightness),
               ),
             ),
@@ -763,6 +772,7 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen>
               child: Text(
                 'Sign Up',
                 style: AppTheme.caption1.copyWith(
+                    overflow: TextOverflow.ellipsis,
                   color: const Color(0xFF667EEA),
                   fontWeight: FontWeight.w600,
                 ),
@@ -793,6 +803,7 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen>
           child: Text(
             text,
             style: AppTheme.caption1.copyWith(
+                    overflow: TextOverflow.ellipsis,
               color: AppTheme.secondaryText(store.brightness),
               decoration: TextDecoration.underline,
             ),

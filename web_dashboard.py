@@ -117,28 +117,73 @@ class AITestingDashboard:
             except Exception as e:
                 return jsonify({"status": "error", "message": str(e)}), 500
         
-        @self.app.route('/api/start_testing', methods=['POST'])
-        def start_testing():
-            """Start REAL AI testing system"""
+        @self.app.route('/api/start_screenshot_testing', methods=['POST'])
+        def start_screenshot_testing():
+            """Start screenshot testing only"""
             try:
-                # Start the Enhanced AI testing system
+                # Start the Enhanced AI testing system for screenshots only
                 subprocess.Popen(['python3', 'enhanced_ai_tester.py'], 
                                stdout=subprocess.PIPE, 
                                stderr=subprocess.PIPE)
                 
-                self.add_activity("🚀 REAL AI Testing System Started - Taking actual screenshots!", "success")
-                return jsonify({"status": "success", "message": "REAL AI Testing Started"})
+                self.add_activity("📸 Screenshot Testing Started - Taking screenshots every 10 seconds", "success")
+                return jsonify({"status": "success", "message": "Screenshot Testing Started"})
             except Exception as e:
                 return jsonify({"status": "error", "message": str(e)})
         
-        @self.app.route('/api/stop_testing', methods=['POST'])
-        def stop_testing():
-            """Stop REAL AI testing system"""
+        @self.app.route('/api/stop_screenshot_testing', methods=['POST'])
+        def stop_screenshot_testing():
+            """Stop screenshot testing but keep code fixing"""
             try:
-                # Kill any running AI testing processes
+                # Kill screenshot testing processes
                 subprocess.run(['pkill', '-f', 'enhanced_ai_tester.py'])
-                self.add_activity("🛑 REAL AI Testing System Stopped", "warning")
-                return jsonify({"status": "success", "message": "REAL AI Testing Stopped"})
+                self.add_activity("📸 Screenshot Testing Stopped - Code fixing continues", "warning")
+                return jsonify({"status": "success", "message": "Screenshot Testing Stopped"})
+            except Exception as e:
+                return jsonify({"status": "error", "message": str(e)})
+        
+        @self.app.route('/api/start_code_fixing', methods=['POST'])
+        def start_code_fixing():
+            """Start code fixing only"""
+            try:
+                # Start independent code fixing system
+                subprocess.Popen(['python3', 'independent_code_fixer.py'], 
+                               stdout=subprocess.PIPE, 
+                               stderr=subprocess.PIPE)
+                
+                self.add_activity("🔧 Code Fixing Started - Analyzing and fixing issues", "success")
+                return jsonify({"status": "success", "message": "Code Fixing Started"})
+            except Exception as e:
+                return jsonify({"status": "error", "message": str(e)})
+        
+        @self.app.route('/api/stop_code_fixing', methods=['POST'])
+        def stop_code_fixing():
+            """Stop code fixing"""
+            try:
+                # Kill code fixing processes
+                subprocess.run(['pkill', '-f', 'independent_code_fixer.py'])
+                self.add_activity("🔧 Code Fixing Stopped", "warning")
+                return jsonify({"status": "success", "message": "Code Fixing Stopped"})
+            except Exception as e:
+                return jsonify({"status": "error", "message": str(e)})
+        
+        @self.app.route('/api/refix_issues', methods=['POST'])
+        def refix_issues():
+            """Refix issues from a specific screenshot"""
+            try:
+                data = request.get_json()
+                filename = data.get('filename')
+                
+                if not filename:
+                    return jsonify({"status": "error", "message": "No filename provided"})
+                
+                # Run analysis and fixing for the specific screenshot
+                subprocess.Popen(['python3', 'independent_code_fixer.py', '--screenshot', filename], 
+                               stdout=subprocess.PIPE, 
+                               stderr=subprocess.PIPE)
+                
+                self.add_activity(f"🔧 Refixing issues from {filename}", "success")
+                return jsonify({"status": "success", "message": f"Refixing issues from {filename}"})
             except Exception as e:
                 return jsonify({"status": "error", "message": str(e)})
     
