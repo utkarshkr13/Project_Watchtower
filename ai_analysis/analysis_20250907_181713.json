@@ -1,0 +1,79 @@
+{
+  "timestamp": "20250907_181713",
+  "image_path": "manual_screenshots/manual_screenshot_20250907_181713.png",
+  "image_info": {
+    "width": 1206,
+    "height": 2622,
+    "channels": 3,
+    "file_size": 23216
+  },
+  "analysis": {
+    "brightness": 49.2356327945829,
+    "contrast": 41.34529354898971,
+    "color_distribution": {
+      "red": 49.32316139870189,
+      "green": 49.261376501676715,
+      "blue": 48.88551837810692
+    },
+    "edge_density": 0.004471982826776365,
+    "text_regions": [],
+    "button_regions": [
+      {
+        "x": 599,
+        "y": 599,
+        "width": 202,
+        "height": 82,
+        "area": 16278.0,
+        "aspect_ratio": 2.4634146341463414
+      },
+      {
+        "x": 349,
+        "y": 599,
+        "width": 202,
+        "height": 82,
+        "area": 16278.0,
+        "aspect_ratio": 2.4634146341463414
+      },
+      {
+        "x": 99,
+        "y": 599,
+        "width": 202,
+        "height": 82,
+        "area": 16278.0,
+        "aspect_ratio": 2.4634146341463414
+      }
+    ],
+    "layout_analysis": {
+      "horizontal_lines": 3162132,
+      "vertical_lines": 3162132,
+      "layout_complexity": 6324264.0
+    },
+    "potential_issues": [
+      {
+        "type": "contrast",
+        "severity": "high",
+        "description": "Large areas of very dark content detected"
+      }
+    ]
+  },
+  "recommendations": [
+    {
+      "type": "brightness",
+      "severity": "high",
+      "message": "Screen is very dark, consider increasing brightness",
+      "value": 49.2356327945829
+    },
+    {
+      "type": "text",
+      "severity": "medium",
+      "message": "No text regions detected, check if text is visible",
+      "value": 0
+    },
+    {
+      "type": "contrast",
+      "severity": "high",
+      "message": "Large areas of very dark content detected",
+      "value": 1
+    }
+  ]
+}
