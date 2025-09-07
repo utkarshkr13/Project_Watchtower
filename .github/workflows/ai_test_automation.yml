@@ -37,7 +37,7 @@ on:
         type: string
 
 env:
-  FLUTTER_VERSION: '3.24.0'
+  FLUTTER_VERSION: '3.27.0'
   JAVA_VERSION: '17'
   XCODE_VERSION: '15.0'
 
@@ -165,10 +165,10 @@ jobs:
       - name: 📊 Generate Coverage Report
         run: |
           dart pub global activate coverage
-          dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.packages --report-on=lib
+          dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --report-on=lib
 
       - name: 📤 Upload Coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           file: coverage/lcov.info
           flags: unit-tests
