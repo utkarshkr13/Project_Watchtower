@@ -72,7 +72,7 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen>
     // Check if we have stored credentials for biometric login
     // This would typically check SharedPreferences or secure storage
     setState(() {
-      _hasStoredCredentials = true; // Mock for demo
+      // _hasStoredCredentials = true; // Mock for demo - removed as variable doesn't exist
     });
   }
 
@@ -298,8 +298,7 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen>
                     const SizedBox(height: 16),
                     
                     // Remember Me & Forgot Password
-                    _buildRememberMeRow(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,brightness, isIOS: isIOS),
+                    _buildRememberMeRow(brightness, isIOS: isIOS),
                     const SizedBox(height: 24),
                     
                     // Error Message
@@ -497,8 +496,7 @@ class _EnhancedLoginScreenState extends State<EnhancedLoginScreen>
     }
   }
 
-  Widget _buildRememberMeRow(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,Brightness brightness, {required bool isIOS}) {
+  Widget _buildRememberMeRow(Brightness brightness, {required bool isIOS}) {
     return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [

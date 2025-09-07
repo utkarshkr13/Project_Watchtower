@@ -8,7 +8,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:fwb/main.dart';
+import 'package:project_watch_tower/main.dart';
 
 void main() {
   testWidgets('App loads correctly', (WidgetTester tester) async {
